@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大模型 API 政策工作台</title>
+<style>
+  :root { --bg:#f8fafc; --card:#ffffff; --line:#e2e8f0; --text:#0f172a; --muted:#64748b; --blue:#185fa5; --green:#3b6d11; --red:#a32d2d; --amber:#854f0b; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:var(--bg); color:var(--text); }
+  header { padding:20px 24px; border-bottom:1px solid var(--line); background:var(--card); }
+  h1 { font-size:18px; margin:0 0 4px; }
+  .meta { color:var(--muted); font-size:13px; }
+  .wrap { max-width:1100px; margin:0 auto; padding:20px 24px; }
+  .filters { display:flex; gap:8px; margin:16px 0; flex-wrap:wrap; }
+  .filters button { border:1px solid var(--line); background:var(--card); padding:6px 14px; border-radius:20px; cursor:pointer; font-size:13px; color:var(--text); }
+  .filters button.active { background:var(--blue); color:#fff; border-color:var(--blue); }
+  .alerts { background:#fff7ed; border:1px solid #fed7aa; border-radius:12px; padding:14px 16px; margin-bottom:20px; }
+  .alerts h2 { font-size:14px; margin:0 0 8px; color:var(--amber); }
+  .alerts li { font-size:13px; margin:4px 0; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+  .card .name { font-weight:600; font-size:15px; display:flex; justify-content:space-between; align-items:center; }
+  .tag { font-size:11px; padding:2px 8px; border-radius:10px; font-weight:400; }
+  .tag.cn { background:#dcfce7; color:var(--green); }
+  .tag.overseas { background:#dbeafe; color:var(--blue); }
+  .row { font-size:13px; margin:8px 0; line-height:1.5; }
+  .row b { color:var(--muted); font-weight:400; }
+  .change { display:inline-block; font-size:12px; padding:2px 8px; border-radius:8px; margin-top:6px; }
+  .change.无变化 { background:#f1f5f9; color:var(--muted); }
+  .change.新增 { background:#dcfce7; color:var(--green); }
+  .change.收紧 { background:#fee2e2; color:var(--red); }
+  .change.放宽 { background:#dcfce7; color:var(--green); }
+  .change.过期 { background:#fef3c7; color:var(--amber); }
+  .free { color:var(--green); font-weight:500; }
+  code { background:#f1f5f9; padding:1px 5px; border-radius:4px; font-size:12px; word-break:break-all; }
+</style>
+</head>
+<body>
+<header>
+  <h1>大模型 API 政策工作台</h1>
+  <div class="meta">最后更新：<span id="updated">加载中…</span> ｜ 数据源：社区免费模型清单 + 静态配置（零 token）</div>
+</header>
+<div class="wrap">
+  <div class="filters">
+    <button data-f="all" class="active">全部</button>
+    <button data-f="cn">国内直连</button>
+    <button data-f="overseas">海外</button>
+  </div>
+  <div class="alerts">
+    <h2>免费政策特别提醒</h2>
+    <ul id="alerts"></ul>
+  </div>
+  <div class="grid" id="grid"></div>
+</div>
+<script>
+async function load() {
+  let data;
+  try {
+    const r = await fetch('data.json?t=' + Date.now());
+    data = await r.json();
+  } catch (e) {
+    document.getElementById('updated').textContent = '加载失败，请用本地服务器打开';
+    return;
+  }
+  document.getElementById('updated').textContent = data.updated || '未知';
+  const al = document.getElementById('alerts');
+  (data.alerts || []).forEach(t => { const li = document.createElement('li'); li.textContent = t; al.appendChild(li); });
+  const grid = document.getElementById('grid');
+  const render = (filter) => {
+    grid.innerHTML = '';
+    (data.platforms || []).filter(p => filter === 'all' || p.region === filter).forEach(p => {
+      const c = document.createElement('div');
+      c.className = 'card';
+      const chg = p.change || '无变化';
+      c.innerHTML = `
+        <div class="name">${p.name}<span class="tag ${p.region}">${p.region === 'cn' ? '国内' : '海外'}</span></div>
+        <div class="row"><b>免费：</b><span class="free">${p.free}</span></div>
+        <div class="row"><b>模型：</b>${p.models}</div>
+        <div class="row"><b>Base：</b><code>${p.base_url}</code></div>
+        <div class="row"><b>备注：</b>${p.note || '-'}</div>
+        <span class="change ${chg}">${chg}</span>`;
+      grid.appendChild(c);
+    });
+  };
+  render('all');
+  document.querySelectorAll('.filters button').forEach(b => {
+    b.onclick = () => {
+      document.querySelectorAll('.filters button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      render(b.dataset.f);
+    };
+  });
+}
+load();
+</script>
+</body>
+</html>
