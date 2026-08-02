@@ -11,22 +11,23 @@
   header { padding:20px 24px; border-bottom:1px solid var(--line); background:var(--card); }
   h1 { font-size:18px; margin:0 0 4px; }
   .meta { color:var(--muted); font-size:13px; }
-  .wrap { max-width:1100px; margin:0 auto; padding:20px 24px; }
+  .wrap { max-width:1200px; margin:0 auto; padding:20px 24px; }
   .filters { display:flex; gap:8px; margin:16px 0; flex-wrap:wrap; }
   .filters button { border:1px solid var(--line); background:var(--card); padding:6px 14px; border-radius:20px; cursor:pointer; font-size:13px; color:var(--text); }
   .filters button.active { background:var(--blue); color:#fff; border-color:var(--blue); }
   .alerts { background:#fff7ed; border:1px solid #fed7aa; border-radius:12px; padding:14px 16px; margin-bottom:20px; }
   .alerts h2 { font-size:14px; margin:0 0 8px; color:var(--amber); }
   .alerts li { font-size:13px; margin:4px 0; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
-  .card .name { font-weight:600; font-size:15px; display:flex; justify-content:space-between; align-items:center; }
-  .tag { font-size:11px; padding:2px 8px; border-radius:10px; font-weight:400; }
+  .table-scroll { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden; font-size:13px; }
+  thead th { background:#f1f5f9; text-align:left; padding:10px 12px; font-weight:600; color:var(--text); border-bottom:1px solid var(--line); white-space:nowrap; }
+  tbody td { padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top; line-height:1.5; }
+  tbody tr:last-child td { border-bottom:none; }
+  tbody tr:hover { background:#f8fafc; }
+  .tag { font-size:11px; padding:2px 8px; border-radius:10px; font-weight:400; white-space:nowrap; }
   .tag.cn { background:#dcfce7; color:var(--green); }
   .tag.overseas { background:#dbeafe; color:var(--blue); }
-  .row { font-size:13px; margin:8px 0; line-height:1.5; }
-  .row b { color:var(--muted); font-weight:400; }
-  .change { display:inline-block; font-size:12px; padding:2px 8px; border-radius:8px; margin-top:6px; }
+  .change { display:inline-block; font-size:12px; padding:2px 8px; border-radius:8px; white-space:nowrap; }
   .change.无变化 { background:#f1f5f9; color:var(--muted); }
   .change.新增 { background:#dcfce7; color:var(--green); }
   .change.收紧 { background:#fee2e2; color:var(--red); }
@@ -51,7 +52,22 @@
     <h2>免费政策特别提醒</h2>
     <ul id="alerts"></ul>
   </div>
-  <div class="grid" id="grid"></div>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>平台</th>
+          <th>地区</th>
+          <th>免费额度</th>
+          <th>代表模型</th>
+          <th>Base URL</th>
+          <th>备注</th>
+          <th>变动</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
 </div>
 <script>
 async function load() {
@@ -66,21 +82,22 @@ async function load() {
   document.getElementById('updated').textContent = data.updated || '未知';
   const al = document.getElementById('alerts');
   (data.alerts || []).forEach(t => { const li = document.createElement('li'); li.textContent = t; al.appendChild(li); });
-  const grid = document.getElementById('grid');
+  const rows = document.getElementById('rows');
   const render = (filter) => {
-    grid.innerHTML = '';
+    rows.innerHTML = '';
     (data.platforms || []).filter(p => filter === 'all' || p.region === filter).forEach(p => {
-      const c = document.createElement('div');
-      c.className = 'card';
+      const tr = document.createElement('tr');
       const chg = p.change || '无变化';
-      c.innerHTML = `
-        <div class="name">${p.name}<span class="tag ${p.region}">${p.region === 'cn' ? '国内' : '海外'}</span></div>
-        <div class="row"><b>免费：</b><span class="free">${p.free}</span></div>
-        <div class="row"><b>模型：</b>${p.models}</div>
-        <div class="row"><b>Base：</b><code>${p.base_url}</code></div>
-        <div class="row"><b>备注：</b>${p.note || '-'}</div>
-        <span class="change ${chg}">${chg}</span>`;
-      grid.appendChild(c);
+      const regionLabel = p.region === 'cn' ? '国内' : '海外';
+      tr.innerHTML = `
+        <td><b>${p.name}</b></td>
+        <td><span class="tag ${p.region}">${regionLabel}</span></td>
+        <td class="free">${p.free}</td>
+        <td>${p.models}</td>
+        <td><code>${p.base_url}</code></td>
+        <td>${p.note || '-'}</td>
+        <td><span class="change ${chg}">${chg}</span></td>`;
+      rows.appendChild(tr);
     });
   };
   render('all');
