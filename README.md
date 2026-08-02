@@ -23,8 +23,8 @@ llm-api-dashboard/
 
 ## 部署步骤（一次配置，之后全自动，零密钥）
 1. 把本目录推到你自己的 GitHub 仓库（或 fork 后改名）。
-2. 仓库 **Settings → Pages → Build and deployment → Source 选 "GitHub Actions"**。
-3. 完成。**无需配置任何 API key / LLM**，每月 1 号 Actions 自动跑 `generate.py`，更新 `data.json` 并重新托管。
+2. 仓库 **Settings → Pages → Build and deployment → Source 选 "Deploy from a branch"，Branch 选 `main`、folder 选 `/ (root)`**。（直接托管仓库里的静态文件，无需额外部署步骤）
+3. 完成。**无需配置任何 API key / LLM**，每月 1 号 Actions 自动跑 `generate.py`，更新 `data.json`，Pages 随即反映新数据（约 1 分钟内生效）。
 4. 想立刻看效果：Actions 页面 → 左上角 **Run workflow** 手动触发一次。
 
 ## 本地预览
