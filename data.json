@@ -1,10 +1,10 @@
 {
-  "updated": "2026-08-02",
+  "updated": "2026-09-01",
   "alerts": [
+    "NVIDIA NIM 免费模型数由 14 减至 10（收紧）",
     "发现新兴免费 provider：pollinations ai（4 个免费模型，建议人工核验）",
     "发现新兴免费 provider：poolside（4 个免费模型，建议人工核验）",
     "发现新兴免费 provider：cohere（2 个免费模型，建议人工核验）",
-    "发现新兴免费 provider：openai（2 个免费模型，建议人工核验）",
     "智谱 GLM-4-Flash 永久免费无限制",
     "硅基流动 1000 RPM 限速最慷慨（新户 2000万 + 任务 1000万 tokens）",
     "火山引擎豆包 每日刷新 200万 tokens",
@@ -133,11 +133,11 @@
     {
       "name": "NVIDIA NIM",
       "region": "overseas",
-      "free": "新户1000credits+免费无限（live 免费模型 14 个）",
+      "free": "新户1000credits+免费无限（live 免费模型 10 个）",
       "models": "Kimi,Llama,DeepSeek",
       "base_url": "https://build.nvidia.com",
       "note": "国内可直连",
-      "change": "无变化"
+      "change": "收紧"
     },
     {
       "name": "Mistral",
